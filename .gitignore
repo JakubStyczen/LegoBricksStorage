@@ -19,7 +19,19 @@
 
 # Go workspace file
 go.work
-go.work.sum
+tmp/
 
-# env file
+# IDE specific files
+.vscode
+.idea
+
+# .env file
 .env
+
+# Project build
+main
+*templ.go
+
+# OS X generated file
+.DS_Store
+
