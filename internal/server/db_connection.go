@@ -1,4 +1,4 @@
-package database
+package server
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/JakubStyczen/LegoBricksStorage/internal/database"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -19,6 +20,7 @@ type Service interface {
 	// The keys and values in the map are service-specific.
 	Health() map[string]string
 
+	GetDBQueries() *database.Queries
 	// Close terminates the database connection.
 	// It returns an error if the connection cannot be closed.
 	Close() error
@@ -26,32 +28,42 @@ type Service interface {
 
 type service struct {
 	db *sql.DB
+	// dbQueries is an instance of the database queries.
+	dbQueries *database.Queries
 }
 
 var (
-	database   = os.Getenv("BLUEPRINT_DB_DATABASE")
-	password   = os.Getenv("BLUEPRINT_DB_PASSWORD")
-	username   = os.Getenv("BLUEPRINT_DB_USERNAME")
-	port       = os.Getenv("BLUEPRINT_DB_PORT")
-	host       = os.Getenv("BLUEPRINT_DB_HOST")
-	schema     = os.Getenv("BLUEPRINT_DB_SCHEMA")
-	dbInstance *service
+	database_name = os.Getenv("BLUEPRINT_DB_DATABASE")
+	password      = os.Getenv("BLUEPRINT_DB_PASSWORD")
+	username      = os.Getenv("BLUEPRINT_DB_USERNAME")
+	port          = os.Getenv("BLUEPRINT_DB_PORT")
+	host          = os.Getenv("BLUEPRINT_DB_HOST")
+	schema        = os.Getenv("BLUEPRINT_DB_SCHEMA")
+	dbInstance    *service
 )
 
-func New() Service {
+func NewService() Service {
 	// Reuse Connection
 	if dbInstance != nil {
 		return dbInstance
 	}
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", username, password, host, port, database, schema)
+	// Connection string should look like this:
+	// postgres://username:password@host:port/database?sslmode=disable&search_path=schema
+	// Example: postgres://postgres:password@localhost:5432/blueprint?sslmode=disable&search_path=public
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", username, password, host, port, database_name, schema)
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
 		log.Fatal(err)
 	}
 	dbInstance = &service{
-		db: db,
+		db:        db,
+		dbQueries: database.New(db),
 	}
 	return dbInstance
+}
+
+func (s *service) GetDBQueries() *database.Queries {
+	return s.dbQueries
 }
 
 // Health checks the health of the database connection by pinging the database.
@@ -110,6 +122,6 @@ func (s *service) Health() map[string]string {
 // If the connection is successfully closed, it returns nil.
 // If an error occurs while closing the connection, it returns the error.
 func (s *service) Close() error {
-	log.Printf("Disconnected from database: %s", database)
+	log.Printf("Disconnected from database: %s", database_name)
 	return s.db.Close()
 }

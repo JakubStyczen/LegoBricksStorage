@@ -7,28 +7,27 @@ import (
 	"strconv"
 	"time"
 
-	_ "github.com/joho/godotenv/autoload"
-
 	"github.com/JakubStyczen/LegoBricksStorage/internal/database"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 type Server struct {
-	port int
-
-	db database.Service
+	port    int
+	addr_ip string
+	db      Service
 }
 
 func NewServer() *http.Server {
+	addr_ip := os.Getenv("ADDR")
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 	NewServer := &Server{
-		port: port,
-
-		db: database.New(),
+		port:    port,
+		addr_ip: addr_ip,
+		db:      NewService(),
 	}
 
-	// Declare Server config
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", NewServer.port),
+		Addr:         fmt.Sprintf("%v:%d", NewServer.addr_ip, NewServer.port),
 		Handler:      NewServer.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
@@ -36,4 +35,8 @@ func NewServer() *http.Server {
 	}
 
 	return server
+}
+
+func (s *Server) GetDBQueries() *database.Queries {
+	return s.db.GetDBQueries()
 }
