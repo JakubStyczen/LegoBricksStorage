@@ -27,6 +27,12 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Post("/users", s.handlerCreateUser)
 	r.Get("/users", s.handlerGetUser)
 
+	r.Post("/lego/sets", s.handlerCreateLegoSet)
+	r.Get("/lego/sets/{serial_number}", s.handlerGetLegoSet)
+	r.Get("/lego/sets", s.handlerListLegoSets)
+	r.Patch("/lego/sets/{serial_number}", s.handlerUpdateLegoSet)
+	r.Delete("/lego/sets/{serial_number}", s.handlerDeleteLegoSet)
+
 	return r
 }
 

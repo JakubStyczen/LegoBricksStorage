@@ -10,6 +10,16 @@ import (
 	"github.com/google/uuid"
 )
 
+type LegoSet struct {
+	ID           int32
+	SerialNumber string
+	Name         string
+	Price        string
+	Theme        string
+	Year         int32
+	TotalParts   int32
+}
+
 type User struct {
 	ID        uuid.UUID
 	CreatedAt time.Time
