@@ -25,13 +25,18 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Get("/health", s.healthHandler)
 
 	r.Post("/users", s.handlerCreateUser)
-	r.Get("/users", s.handlerGetUser)
+	r.Get("/users", s.middlewareAuth(s.handlerGetUser))
 
-	r.Post("/lego/sets", s.handlerCreateLegoSet)
+	r.Post("/lego/sets", s.middlewareAuth(s.handlerCreateLegoSet))
 	r.Get("/lego/sets/{serial_number}", s.handlerGetLegoSet)
 	r.Get("/lego/sets", s.handlerListLegoSets)
-	r.Patch("/lego/sets/{serial_number}", s.handlerUpdateLegoSet)
-	r.Delete("/lego/sets/{serial_number}", s.handlerDeleteLegoSet)
+	r.Patch("/lego/sets/{serial_number}", s.middlewareAuth(s.handlerUpdateLegoSet))
+	r.Delete("/lego/sets/{serial_number}", s.middlewareAuth(s.handlerDeleteLegoSet))
+
+	r.Post("/lego/user/set", s.middlewareAuth(s.handlerCreateUserSet))
+	r.Get("/lego/user/set", s.middlewareAuth(s.handlerGetUserSet))
+	r.Get("/lego/user/sets", s.middlewareAuth(s.handlerListUserSets))
+	r.Delete("/lego/user/set", s.middlewareAuth(s.handlerDeleteUserSet))
 
 	return r
 }

@@ -7,31 +7,37 @@ package database
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 const createLegoSet = `-- name: CreateLegoSet :one
-INSERT INTO lego_sets (serial_number, name, price, theme, year, total_parts)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, serial_number, name, price, theme, year, total_parts
+INSERT INTO lego_sets (id, serial_number, name, price, theme, year, total_parts, user_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING id, serial_number, name, price, theme, year, total_parts, user_id
 `
 
 type CreateLegoSetParams struct {
+	ID           uuid.UUID
 	SerialNumber string
 	Name         string
 	Price        string
 	Theme        string
 	Year         int32
 	TotalParts   int32
+	UserID       uuid.UUID
 }
 
 func (q *Queries) CreateLegoSet(ctx context.Context, arg CreateLegoSetParams) (LegoSet, error) {
 	row := q.db.QueryRowContext(ctx, createLegoSet,
+		arg.ID,
 		arg.SerialNumber,
 		arg.Name,
 		arg.Price,
 		arg.Theme,
 		arg.Year,
 		arg.TotalParts,
+		arg.UserID,
 	)
 	var i LegoSet
 	err := row.Scan(
@@ -42,6 +48,7 @@ func (q *Queries) CreateLegoSet(ctx context.Context, arg CreateLegoSetParams) (L
 		&i.Theme,
 		&i.Year,
 		&i.TotalParts,
+		&i.UserID,
 	)
 	return i, err
 }
@@ -57,7 +64,7 @@ func (q *Queries) DeleteLegoSet(ctx context.Context, serialNumber string) error 
 }
 
 const getLegoSetBySerial = `-- name: GetLegoSetBySerial :one
-SELECT id, serial_number, name, price, theme, year, total_parts FROM lego_sets WHERE serial_number = $1
+SELECT id, serial_number, name, price, theme, year, total_parts, user_id FROM lego_sets WHERE serial_number = $1
 `
 
 func (q *Queries) GetLegoSetBySerial(ctx context.Context, serialNumber string) (LegoSet, error) {
@@ -71,12 +78,13 @@ func (q *Queries) GetLegoSetBySerial(ctx context.Context, serialNumber string) (
 		&i.Theme,
 		&i.Year,
 		&i.TotalParts,
+		&i.UserID,
 	)
 	return i, err
 }
 
 const listLegoSets = `-- name: ListLegoSets :many
-SELECT id, serial_number, name, price, theme, year, total_parts FROM lego_sets ORDER BY year DESC
+SELECT id, serial_number, name, price, theme, year, total_parts, user_id FROM lego_sets ORDER BY year DESC
 `
 
 func (q *Queries) ListLegoSets(ctx context.Context) ([]LegoSet, error) {
@@ -96,6 +104,7 @@ func (q *Queries) ListLegoSets(ctx context.Context) ([]LegoSet, error) {
 			&i.Theme,
 			&i.Year,
 			&i.TotalParts,
+			&i.UserID,
 		); err != nil {
 			return nil, err
 		}

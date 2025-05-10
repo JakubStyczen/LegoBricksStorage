@@ -69,3 +69,17 @@ Clean up binary from the last build:
 ```bash
 make clean
 ```
+
+## SQL
+
+To migrate data to sql db in _internal/sql/schema_:
+
+```
+goose postgres URL up/down
+```
+
+To generate sql functions for table run in _internal_ folder:
+
+```
+sqlc generate
+```

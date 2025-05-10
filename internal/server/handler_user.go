@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/JakubStyczen/LegoBricksStorage/internal/auth"
 	"github.com/JakubStyczen/LegoBricksStorage/internal/database"
 	"github.com/google/uuid"
 )
@@ -39,18 +38,6 @@ func (s *Server) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
 	WriteJSONResponse(w, http.StatusOK, databaseUserToUser(user))
 }
 
-func (s *Server) handlerGetUser(w http.ResponseWriter, r *http.Request) {
-	apiKey, err := auth.GetAPIKey(r.Header)
-	if err != nil {
-		WriteJSONError(w, http.StatusUnauthorized, "Couldn't find api key")
-		return
-	}
-
-	user, err := s.GetDBQueries().GetUserByAPIKey(r.Context(), apiKey)
-	if err != nil {
-		WriteJSONError(w, http.StatusNotFound, "Couldn't get user")
-		return
-	}
-
+func (s *Server) handlerGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
 	WriteJSONResponse(w, http.StatusOK, databaseUserToUser(user))
 }

@@ -11,13 +11,14 @@ import (
 )
 
 type LegoSet struct {
-	ID           int32
+	ID           uuid.UUID
 	SerialNumber string
 	Name         string
 	Price        string
 	Theme        string
 	Year         int32
 	TotalParts   int32
+	UserID       uuid.UUID
 }
 
 type User struct {
@@ -27,4 +28,12 @@ type User struct {
 	Name      string
 	Age       int32
 	ApiKey    string
+}
+
+type UserSet struct {
+	ID      uuid.UUID
+	UserID  uuid.UUID
+	SetID   uuid.UUID
+	Price   string
+	OwnedAt time.Time
 }

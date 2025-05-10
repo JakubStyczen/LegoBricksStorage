@@ -1,6 +1,6 @@
 -- name: CreateLegoSet :one
-INSERT INTO lego_sets (serial_number, name, price, theme, year, total_parts)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO lego_sets (id, serial_number, name, price, theme, year, total_parts, user_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *;
 
 -- name: GetLegoSetBySerial :one

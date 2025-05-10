@@ -7,9 +7,20 @@ import (
 
 	"github.com/JakubStyczen/LegoBricksStorage/internal/database"
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
-func (s *Server) handlerCreateLegoSet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) getURLParam(w http.ResponseWriter, r *http.Request, paramName string) string {
+	paramValue := chi.URLParam(r, paramName)
+
+	if paramValue == "" {
+		WriteJSONError(w, http.StatusBadRequest, paramName+" is required")
+		return ""
+	}
+	return paramValue
+}
+
+func (s *Server) handlerCreateLegoSet(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		SerialNumber string `json:"serial_number"`
 		Name         string `json:"name"`
@@ -27,12 +38,14 @@ func (s *Server) handlerCreateLegoSet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	legoSet, err := s.GetDBQueries().CreateLegoSet(r.Context(), database.CreateLegoSetParams{
+		ID:           uuid.New(),
 		SerialNumber: params.SerialNumber,
 		Name:         params.Name,
 		Price:        params.Price,
 		Theme:        params.Theme,
 		Year:         params.Year,
 		TotalParts:   params.TotalParts,
+		UserID:       user.ID,
 	})
 	if err != nil {
 		log.Println(err)
@@ -43,12 +56,7 @@ func (s *Server) handlerCreateLegoSet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handlerGetLegoSet(w http.ResponseWriter, r *http.Request) {
-	serialNumber := chi.URLParam(r, "serial_number")
-
-	if serialNumber == "" {
-		WriteJSONError(w, http.StatusBadRequest, "Serial number is required")
-		return
-	}
+	serialNumber := s.getURLParam(w, r, "serial_number")
 
 	legoSet, err := s.GetDBQueries().GetLegoSetBySerial(r.Context(), serialNumber)
 	if err != nil {
@@ -69,13 +77,8 @@ func (s *Server) handlerListLegoSets(w http.ResponseWriter, r *http.Request) {
 	WriteJSONResponse(w, http.StatusOK, legoSets)
 }
 
-func (s *Server) handlerUpdateLegoSet(w http.ResponseWriter, r *http.Request) {
-	serialNumber := chi.URLParam(r, "serial_number")
-
-	if serialNumber == "" {
-		WriteJSONError(w, http.StatusBadRequest, "Serial number is required")
-		return
-	}
+func (s *Server) handlerUpdateLegoSet(w http.ResponseWriter, r *http.Request, user database.User) {
+	serialNumber := s.getURLParam(w, r, "serial_number")
 
 	type parameters struct {
 		Name       string `json:"name"`
@@ -91,6 +94,7 @@ func (s *Server) handlerUpdateLegoSet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//TODO: update UserID to user.ID after adding user to lego set
 	err := s.GetDBQueries().UpdateLegoSet(r.Context(), database.UpdateLegoSetParams{
 		SerialNumber: serialNumber,
 		Name:         params.Name,
@@ -108,13 +112,9 @@ func (s *Server) handlerUpdateLegoSet(w http.ResponseWriter, r *http.Request) {
 	WriteJSONResponse(w, http.StatusOK, "Lego set updated successfully")
 }
 
-func (s *Server) handlerDeleteLegoSet(w http.ResponseWriter, r *http.Request) {
-	serialNumber := chi.URLParam(r, "serial_number")
+func (s *Server) handlerDeleteLegoSet(w http.ResponseWriter, r *http.Request, user database.User) {
+	serialNumber := s.getURLParam(w, r, "serial_number")
 
-	if serialNumber == "" {
-		WriteJSONError(w, http.StatusBadRequest, "Serial number is required")
-		return
-	}
 	err := s.GetDBQueries().DeleteLegoSet(r.Context(), serialNumber)
 	if err != nil {
 		WriteJSONResponse(w, http.StatusInternalServerError, "Couldn't delete lego set")
