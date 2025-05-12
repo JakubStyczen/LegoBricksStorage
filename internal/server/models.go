@@ -7,6 +7,15 @@ import (
 	"github.com/google/uuid"
 )
 
+type LegoPart struct {
+	ID           uuid.UUID `json:"id"`
+	SerialNumber string    `json:"serial_number"`
+	Quantity     int32     `json:"quantity"`
+	Name         string    `json:"name"`
+	Color        string    `json:"color"`
+	Price        string    `json:"price"`
+}
+
 type UserSet struct {
 	ID      uuid.UUID `json:"id"`
 	OwnedAt time.Time `json:"owned_at"`
@@ -33,6 +42,17 @@ type User struct {
 	Name      string    `json:"name"`
 	Age       int32     `json:"age"`
 	ApiKey    string    `json:"api_key"`
+}
+
+func databaseLegoPartToLegoPart(lego_part database.LegoPart) LegoPart {
+	return LegoPart{
+		ID:           lego_part.ID,
+		SerialNumber: lego_part.SerialNumber,
+		Quantity:     lego_part.Quantity,
+		Name:         lego_part.Name,
+		Color:        lego_part.Color,
+		Price:        lego_part.Price,
+	}
 }
 
 func databaseUserSetToUserSet(user_set database.UserSet) UserSet {

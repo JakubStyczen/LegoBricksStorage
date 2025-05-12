@@ -10,6 +10,15 @@ import (
 	"github.com/google/uuid"
 )
 
+type LegoPart struct {
+	ID           uuid.UUID
+	SerialNumber string
+	Quantity     int32
+	Name         string
+	Color        string
+	Price        string
+}
+
 type LegoSet struct {
 	ID           uuid.UUID
 	SerialNumber string

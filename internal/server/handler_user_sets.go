@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -30,7 +31,7 @@ func (s *Server) handlerCreateUserSet(w http.ResponseWriter, r *http.Request, us
 	})
 	if err != nil {
 		log.Println(err)
-		WriteJSONResponse(w, http.StatusInternalServerError, "Couldn't create lego set")
+		WriteJSONResponse(w, http.StatusInternalServerError, "Couldn't add Lego set to user")
 		return
 	}
 	WriteJSONResponse(w, http.StatusOK, userSet)
@@ -53,7 +54,8 @@ func (s *Server) handlerGetUserSet(w http.ResponseWriter, r *http.Request, user 
 		ID:           user.ID,
 	})
 	if err != nil {
-		WriteJSONError(w, http.StatusNotFound, "Couldn't find lego set")
+		msg := fmt.Sprintf("Couldn't find Lego set SN: %s for user", params.SerialNumber)
+		WriteJSONError(w, http.StatusNotFound, msg)
 		return
 	}
 
@@ -63,7 +65,7 @@ func (s *Server) handlerGetUserSet(w http.ResponseWriter, r *http.Request, user 
 func (s *Server) handlerListUserSets(w http.ResponseWriter, r *http.Request, user database.User) {
 	userSets, err := s.GetDBQueries().ListUserSets(r.Context(), user.ID)
 	if err != nil {
-		WriteJSONError(w, http.StatusInternalServerError, "Couldn't retrieve lego sets")
+		WriteJSONError(w, http.StatusInternalServerError, "Couldn't retrieve user's Lego sets")
 		return
 	}
 
@@ -87,9 +89,10 @@ func (s *Server) handlerDeleteUserSet(w http.ResponseWriter, r *http.Request, us
 		ID:           user.ID,
 	})
 	if err != nil {
-		WriteJSONResponse(w, http.StatusInternalServerError, "Couldn't delete lego set")
+		msg := fmt.Sprintf("Couldn't delete lego set SN: %s for user", params.SerialNumber)
+		WriteJSONResponse(w, http.StatusInternalServerError, msg)
 		return
 	}
 
-	WriteJSONResponse(w, http.StatusOK, "User Lego set deleted successfully")
+	WriteJSONResponse(w, http.StatusOK, "User's Lego set deleted successfully")
 }

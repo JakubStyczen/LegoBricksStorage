@@ -27,6 +27,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Post("/users", s.handlerCreateUser)
 	r.Get("/users", s.middlewareAuth(s.handlerGetUser))
 
+	//TODO: refactor to pass serial number as a parameter
 	r.Post("/lego/sets", s.middlewareAuth(s.handlerCreateLegoSet))
 	r.Get("/lego/sets/{serial_number}", s.handlerGetLegoSet)
 	r.Get("/lego/sets", s.handlerListLegoSets)
@@ -37,6 +38,12 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Get("/lego/user/set", s.middlewareAuth(s.handlerGetUserSet))
 	r.Get("/lego/user/sets", s.middlewareAuth(s.handlerListUserSets))
 	r.Delete("/lego/user/set", s.middlewareAuth(s.handlerDeleteUserSet))
+
+	r.Post("/lego/part", s.middlewareAuth(s.handlerCreateLegoPart))
+	r.Get("/lego/part", s.handlerGetLegoPart)
+	r.Get("/lego/parts", s.handlerListLegoParts)
+	r.Patch("/lego/part", s.middlewareAuth(s.handlerUpdateLegoPart))
+	r.Delete("/lego/part", s.middlewareAuth(s.handlerDeleteLegoPart))
 
 	return r
 }
