@@ -121,7 +121,7 @@ func (q *Queries) ListLegoSets(ctx context.Context) ([]LegoSet, error) {
 
 const updateLegoSet = `-- name: UpdateLegoSet :exec
 UPDATE lego_sets
-SET name = $2, price = $3, theme = $4, year = $5, total_parts = $6
+SET name = $2, price = $3, theme = $4, year = $5, total_parts = $6, user_id = $7    
 WHERE serial_number = $1
 `
 
@@ -132,6 +132,7 @@ type UpdateLegoSetParams struct {
 	Theme        string
 	Year         int32
 	TotalParts   int32
+	UserID       uuid.UUID
 }
 
 func (q *Queries) UpdateLegoSet(ctx context.Context, arg UpdateLegoSetParams) error {
@@ -142,6 +143,7 @@ func (q *Queries) UpdateLegoSet(ctx context.Context, arg UpdateLegoSetParams) er
 		arg.Theme,
 		arg.Year,
 		arg.TotalParts,
+		arg.UserID,
 	)
 	return err
 }

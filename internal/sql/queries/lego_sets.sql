@@ -11,7 +11,7 @@ SELECT * FROM lego_sets ORDER BY year DESC;
 
 -- name: UpdateLegoSet :exec
 UPDATE lego_sets
-SET name = $2, price = $3, theme = $4, year = $5, total_parts = $6
+SET name = $2, price = $3, theme = $4, year = $5, total_parts = $6, user_id = $7    
 WHERE serial_number = $1;
 
 -- name: DeleteLegoSet :exec

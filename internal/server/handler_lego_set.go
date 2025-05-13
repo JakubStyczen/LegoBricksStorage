@@ -102,7 +102,6 @@ func (s *Server) handlerUpdateLegoSet(w http.ResponseWriter, r *http.Request, us
 		return
 	}
 
-	//TODO: update UserID to user.ID after adding user to lego set
 	err := s.GetDBQueries().UpdateLegoSet(r.Context(), database.UpdateLegoSetParams{
 		SerialNumber: params.SerialNumber,
 		Name:         params.Name,
@@ -110,6 +109,7 @@ func (s *Server) handlerUpdateLegoSet(w http.ResponseWriter, r *http.Request, us
 		Theme:        params.Theme,
 		Year:         params.Year,
 		TotalParts:   params.TotalParts,
+		UserID:       user.ID,
 	})
 	if err != nil {
 		log.Println("update error:", err)
