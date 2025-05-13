@@ -30,6 +30,12 @@ type LegoSet struct {
 	UserID       uuid.UUID
 }
 
+type LegoSetPart struct {
+	SetSerial  string
+	PartSerial string
+	Quantity   int32
+}
+
 type User struct {
 	ID        uuid.UUID
 	CreatedAt time.Time

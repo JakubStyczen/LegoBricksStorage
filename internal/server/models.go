@@ -7,6 +7,12 @@ import (
 	"github.com/google/uuid"
 )
 
+type LegoSetPart struct {
+	SetSerial  string `json:"set_serial_number"`
+	PartSerial string `json:"part_serial_number"`
+	Quantity   int32  `json:"quantity"`
+}
+
 type LegoPart struct {
 	ID           uuid.UUID `json:"id"`
 	SerialNumber string    `json:"serial_number"`
@@ -42,6 +48,32 @@ type User struct {
 	Name      string    `json:"name"`
 	Age       int32     `json:"age"`
 	ApiKey    string    `json:"api_key"`
+}
+
+type LegoSetPartWithName struct {
+	SetSerial  string `json:"set_serial_number"`
+	PartSerial string `json:"part_serial_number"`
+	SetName    string `json:"set_name"`
+	PartName   string `json:"part_name"`
+	Quantity   int32  `json:"quantity"`
+}
+
+func databaseLegoAllPartsInSetsToLegoSetPartWithName(lego_set_part database.GetAllPartsInAllSetsRow) LegoSetPartWithName {
+	return LegoSetPartWithName{
+		SetSerial:  lego_set_part.SetSerial,
+		PartSerial: lego_set_part.PartSerial,
+		SetName:    lego_set_part.SetName,
+		PartName:   lego_set_part.PartName,
+		Quantity:   lego_set_part.Quantity,
+	}
+}
+
+func databaseLegoSetPartToLegoSetPart(lego_set_part database.LegoSetPart) LegoSetPart {
+	return LegoSetPart{
+		SetSerial:  lego_set_part.SetSerial,
+		PartSerial: lego_set_part.PartSerial,
+		Quantity:   lego_set_part.Quantity,
+	}
 }
 
 func databaseLegoPartToLegoPart(lego_part database.LegoPart) LegoPart {

@@ -27,12 +27,18 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Post("/users", s.handlerCreateUser)
 	r.Get("/users", s.middlewareAuth(s.handlerGetUser))
 
+	//TODO: convert all db obj to jsons
 	//TODO: refactor to pass serial number as a parameter
-	r.Post("/lego/sets", s.middlewareAuth(s.handlerCreateLegoSet))
-	r.Get("/lego/sets/{serial_number}", s.handlerGetLegoSet)
+	r.Post("/lego/set", s.middlewareAuth(s.handlerCreateLegoSet))
+	r.Get("/lego/set/{serial_number}", s.handlerGetLegoSet)
 	r.Get("/lego/sets", s.handlerListLegoSets)
-	r.Patch("/lego/sets/{serial_number}", s.middlewareAuth(s.handlerUpdateLegoSet))
-	r.Delete("/lego/sets/{serial_number}", s.middlewareAuth(s.handlerDeleteLegoSet))
+	r.Patch("/lego/set/{serial_number}", s.middlewareAuth(s.handlerUpdateLegoSet))
+	r.Delete("/lego/set/{serial_number}", s.middlewareAuth(s.handlerDeleteLegoSet))
+
+	r.Post("/lego/set/parts", s.middlewareAuth(s.handlerCreateLegoPartSet))
+	r.Get("/lego/set/parts", s.handlerGetLegoPartForSet)
+	r.Get("/lego/sets/parts", s.handlerListLegoAllPartsForAllSets)
+	r.Delete("/lego/set/parts", s.middlewareAuth(s.handlerDeleteLegoPartForSet))
 
 	r.Post("/lego/user/set", s.middlewareAuth(s.handlerCreateUserSet))
 	r.Get("/lego/user/set", s.middlewareAuth(s.handlerGetUserSet))
