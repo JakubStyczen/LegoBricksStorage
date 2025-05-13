@@ -56,9 +56,18 @@ func (s *Server) handlerCreateLegoSet(w http.ResponseWriter, r *http.Request, us
 }
 
 func (s *Server) handlerGetLegoSet(w http.ResponseWriter, r *http.Request) {
-	serialNumber := s.getURLParam(w, r, "serial_number")
+	type parameters struct {
+		SerialNumber string `json:"serial_number"`
+	}
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		WriteJSONResponse(w, http.StatusInternalServerError, "Couldn't decode parameters")
+		return
+	}
 
-	legoSet, err := s.GetDBQueries().GetLegoSetBySerial(r.Context(), serialNumber)
+	legoSet, err := s.GetDBQueries().GetLegoSetBySerial(r.Context(), params.SerialNumber)
 	if err != nil {
 		WriteJSONError(w, http.StatusNotFound, "Couldn't find lego set")
 		return
@@ -78,14 +87,13 @@ func (s *Server) handlerListLegoSets(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handlerUpdateLegoSet(w http.ResponseWriter, r *http.Request, user database.User) {
-	serialNumber := s.getURLParam(w, r, "serial_number")
-
 	type parameters struct {
-		Name       string `json:"name"`
-		Price      string `json:"price"`
-		Theme      string `json:"theme"`
-		Year       int32  `json:"year"`
-		TotalParts int32  `json:"total_parts"`
+		SerialNumber string `json:"serial_number"`
+		Name         string `json:"name"`
+		Price        string `json:"price"`
+		Theme        string `json:"theme"`
+		Year         int32  `json:"year"`
+		TotalParts   int32  `json:"total_parts"`
 	}
 
 	var params parameters
@@ -96,7 +104,7 @@ func (s *Server) handlerUpdateLegoSet(w http.ResponseWriter, r *http.Request, us
 
 	//TODO: update UserID to user.ID after adding user to lego set
 	err := s.GetDBQueries().UpdateLegoSet(r.Context(), database.UpdateLegoSetParams{
-		SerialNumber: serialNumber,
+		SerialNumber: params.SerialNumber,
 		Name:         params.Name,
 		Price:        params.Price,
 		Theme:        params.Theme,
@@ -113,9 +121,17 @@ func (s *Server) handlerUpdateLegoSet(w http.ResponseWriter, r *http.Request, us
 }
 
 func (s *Server) handlerDeleteLegoSet(w http.ResponseWriter, r *http.Request, user database.User) {
-	serialNumber := s.getURLParam(w, r, "serial_number")
-
-	err := s.GetDBQueries().DeleteLegoSet(r.Context(), serialNumber)
+	type parameters struct {
+		SerialNumber string `json:"serial_number"`
+	}
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		WriteJSONResponse(w, http.StatusInternalServerError, "Couldn't decode parameters")
+		return
+	}
+	err = s.GetDBQueries().DeleteLegoSet(r.Context(), params.SerialNumber)
 	if err != nil {
 		WriteJSONResponse(w, http.StatusInternalServerError, "Couldn't delete lego set")
 		return
