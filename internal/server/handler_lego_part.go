@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -38,7 +39,7 @@ func (s *Server) handlerCreateLegoPart(w http.ResponseWriter, r *http.Request, u
 		WriteJSONResponse(w, http.StatusInternalServerError, "Couldn't create lego part")
 		return
 	}
-	WriteJSONResponse(w, http.StatusOK, legoPart)
+	WriteJSONResponse(w, http.StatusOK, databaseLegoPartToLegoPart(legoPart))
 }
 
 func (s *Server) handlerGetLegoPart(w http.ResponseWriter, r *http.Request) {
@@ -54,11 +55,12 @@ func (s *Server) handlerGetLegoPart(w http.ResponseWriter, r *http.Request) {
 	}
 	legoPart, err := s.GetDBQueries().GetPartByNumber(r.Context(), params.SerialNumber)
 	if err != nil {
-		WriteJSONError(w, http.StatusNotFound, "Couldn't find lego part")
+		msg := fmt.Sprintf("Couldn't find Lego part SN: %s", params.SerialNumber)
+		WriteJSONError(w, http.StatusNotFound, msg)
 		return
 	}
 
-	WriteJSONResponse(w, http.StatusOK, legoPart)
+	WriteJSONResponse(w, http.StatusOK, databaseLegoPartToLegoPart(legoPart))
 }
 
 func (s *Server) handlerListLegoParts(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +70,7 @@ func (s *Server) handlerListLegoParts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	WriteJSONResponse(w, http.StatusOK, legoParts)
+	WriteJSONResponse(w, http.StatusOK, ConvertDBObjListToObjList(legoParts, databaseLegoPartToLegoPart))
 }
 
 func (s *Server) handlerUpdateLegoPart(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -97,7 +99,8 @@ func (s *Server) handlerUpdateLegoPart(w http.ResponseWriter, r *http.Request, u
 	})
 	if err != nil {
 		log.Println("update error:", err)
-		WriteJSONError(w, http.StatusInternalServerError, "Couldn't update lego part")
+		msg := fmt.Sprintf("Couldn't update Lego part SN: %s", params.SerialNumber)
+		WriteJSONError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
@@ -117,7 +120,8 @@ func (s *Server) handlerDeleteLegoPart(w http.ResponseWriter, r *http.Request, u
 	}
 	err = s.GetDBQueries().DeletePart(r.Context(), params.SerialNumber)
 	if err != nil {
-		WriteJSONResponse(w, http.StatusInternalServerError, "Couldn't delete lego part")
+		msg := fmt.Sprintf("Couldn'td delte Lego part SN: %s", params.SerialNumber)
+		WriteJSONResponse(w, http.StatusInternalServerError, msg)
 		return
 	}
 

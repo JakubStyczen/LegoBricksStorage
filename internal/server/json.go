@@ -6,6 +6,15 @@ import (
 	"net/http"
 )
 
+func ConvertDBObjListToObjList[T any, U any](dbObjList []T, converter func(T) U) []U {
+	result := make([]U, 0, len(dbObjList))
+	for _, dbObj := range dbObjList {
+		obj := converter(dbObj)
+		result = append(result, obj)
+	}
+	return result
+}
+
 func WriteJSONResponse(w http.ResponseWriter, status int, data interface{}) error {
 	w.Header().Set("Content-Type", "application/json")
 	json_data, err := json.Marshal(data)

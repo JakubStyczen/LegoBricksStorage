@@ -34,7 +34,7 @@ func (s *Server) handlerCreateLegoPartSet(w http.ResponseWriter, r *http.Request
 		WriteJSONResponse(w, http.StatusInternalServerError, msg)
 		return
 	}
-	WriteJSONResponse(w, http.StatusOK, legoPartSet)
+	WriteJSONResponse(w, http.StatusOK, databaseLegoSetPartToLegoSetPart(legoPartSet))
 }
 
 func (s *Server) handlerGetLegoPartForSet(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +56,7 @@ func (s *Server) handlerGetLegoPartForSet(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	WriteJSONResponse(w, http.StatusOK, legoPartsForSet)
+	WriteJSONResponse(w, http.StatusOK, ConvertDBObjListToObjList(legoPartsForSet, databaseLegoSetPartToLegoSetPart))
 }
 
 func (s *Server) handlerListLegoAllPartsForAllSets(w http.ResponseWriter, r *http.Request) {
@@ -66,7 +66,7 @@ func (s *Server) handlerListLegoAllPartsForAllSets(w http.ResponseWriter, r *htt
 		return
 	}
 
-	WriteJSONResponse(w, http.StatusOK, legoPartsInSets)
+	WriteJSONResponse(w, http.StatusOK, ConvertDBObjListToObjList(legoPartsInSets, databaseLegoAllPartsInSetsToLegoSetPartWithName))
 }
 
 func (s *Server) handlerDeleteLegoPartForSet(w http.ResponseWriter, r *http.Request, user database.User) {

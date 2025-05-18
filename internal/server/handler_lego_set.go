@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -52,7 +53,7 @@ func (s *Server) handlerCreateLegoSet(w http.ResponseWriter, r *http.Request, us
 		WriteJSONResponse(w, http.StatusInternalServerError, "Couldn't create lego set")
 		return
 	}
-	WriteJSONResponse(w, http.StatusOK, legoSet)
+	WriteJSONResponse(w, http.StatusOK, databaseLegoSetToLegoSet(legoSet))
 }
 
 func (s *Server) handlerGetLegoSet(w http.ResponseWriter, r *http.Request) {
@@ -69,11 +70,12 @@ func (s *Server) handlerGetLegoSet(w http.ResponseWriter, r *http.Request) {
 
 	legoSet, err := s.GetDBQueries().GetLegoSetBySerial(r.Context(), params.SerialNumber)
 	if err != nil {
-		WriteJSONError(w, http.StatusNotFound, "Couldn't find lego set")
+		msg := fmt.Sprintf("Couldn't find Lego SN: %s", params.SerialNumber)
+		WriteJSONError(w, http.StatusNotFound, msg)
 		return
 	}
 
-	WriteJSONResponse(w, http.StatusOK, legoSet)
+	WriteJSONResponse(w, http.StatusOK, databaseLegoSetToLegoSet(legoSet))
 }
 
 func (s *Server) handlerListLegoSets(w http.ResponseWriter, r *http.Request) {
@@ -83,7 +85,7 @@ func (s *Server) handlerListLegoSets(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	WriteJSONResponse(w, http.StatusOK, legoSets)
+	WriteJSONResponse(w, http.StatusOK, ConvertDBObjListToObjList(legoSets, databaseLegoSetToLegoSet))
 }
 
 func (s *Server) handlerUpdateLegoSet(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -112,8 +114,9 @@ func (s *Server) handlerUpdateLegoSet(w http.ResponseWriter, r *http.Request, us
 		UserID:       user.ID,
 	})
 	if err != nil {
-		log.Println("update error:", err)
-		WriteJSONError(w, http.StatusInternalServerError, "Couldn't update lego set")
+		log.Println("Update error:", err)
+		msg := fmt.Sprintf("Couldn't update Lego set SN: %s", params.SerialNumber)
+		WriteJSONError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
@@ -133,7 +136,8 @@ func (s *Server) handlerDeleteLegoSet(w http.ResponseWriter, r *http.Request, us
 	}
 	err = s.GetDBQueries().DeleteLegoSet(r.Context(), params.SerialNumber)
 	if err != nil {
-		WriteJSONResponse(w, http.StatusInternalServerError, "Couldn't delete lego set")
+		msg := fmt.Sprintf("Couldn'td delte Lego set SN: %s", params.SerialNumber)
+		WriteJSONResponse(w, http.StatusInternalServerError, msg)
 		return
 	}
 

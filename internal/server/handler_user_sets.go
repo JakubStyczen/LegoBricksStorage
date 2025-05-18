@@ -34,7 +34,7 @@ func (s *Server) handlerCreateUserSet(w http.ResponseWriter, r *http.Request, us
 		WriteJSONResponse(w, http.StatusInternalServerError, "Couldn't add Lego set to user")
 		return
 	}
-	WriteJSONResponse(w, http.StatusOK, userSet)
+	WriteJSONResponse(w, http.StatusOK, databaseUserSetToUserSet(userSet))
 }
 
 func (s *Server) handlerGetUserSet(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -59,7 +59,7 @@ func (s *Server) handlerGetUserSet(w http.ResponseWriter, r *http.Request, user 
 		return
 	}
 
-	WriteJSONResponse(w, http.StatusOK, userSet)
+	WriteJSONResponse(w, http.StatusOK, databaseUserSetToUserSet(userSet))
 }
 
 func (s *Server) handlerListUserSets(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -69,7 +69,7 @@ func (s *Server) handlerListUserSets(w http.ResponseWriter, r *http.Request, use
 		return
 	}
 
-	WriteJSONResponse(w, http.StatusOK, userSets)
+	WriteJSONResponse(w, http.StatusOK, ConvertDBObjListToObjList(userSets, databaseUserSetToUserSet))
 }
 
 func (s *Server) handlerDeleteUserSet(w http.ResponseWriter, r *http.Request, user database.User) {
